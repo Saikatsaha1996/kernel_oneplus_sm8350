@@ -1074,10 +1074,10 @@ struct task_struct {
 
 	struct nameidata		*nameidata;
 
-#ifdef CONFIG_SYSVIPC
-	struct sysv_sem			sysvsem;
-	struct sysv_shm			sysvshm;
-#endif
+//#ifdef CONFIG_SYSVIPC
+//	struct sysv_sem			sysvsem;
+//	struct sysv_shm			sysvshm;
+//#endif
 #ifdef CONFIG_DETECT_HUNG_TASK
 	/* hung task detection */
 	unsigned long			last_switch_count;
@@ -1466,10 +1466,17 @@ struct task_struct {
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
 	ANDROID_KABI_RESERVE(5);
+#if defined(CONFIG_SYSVIPC)
+	// struct sysv_sem			sysvsem;
+	ANDROID_KABI_USE(6, struct sysv_sem sysvsem);
+	// struct sysv_shm			sysvshm;
+	_ANDROID_KABI_REPLACE(ANDROID_KABI_RESERVE(7); ANDROID_KABI_RESERVE(8),
+						  struct sysv_shm sysvshm);
+#else
 	ANDROID_KABI_RESERVE(6);
 	ANDROID_KABI_RESERVE(7);
 	ANDROID_KABI_RESERVE(8);
-
+#endif
 	/*
 	 * New fields for task_struct should be added above here, so that
 	 * they are included in the randomized portion of task_struct.
