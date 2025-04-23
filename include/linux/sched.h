@@ -74,6 +74,11 @@ struct task_group;
  * mistake.
  */
 
+struct kabi_reserved_sysvshm {
+	u64 reserved7;
+	u64 reserved8;
+} __aligned(__alignof__(struct sysv_shm));
+
 /* Used in tsk->state: */
 #define TASK_RUNNING			0x0000
 #define TASK_INTERRUPTIBLE		0x0001
@@ -1074,10 +1079,11 @@ struct task_struct {
 
 	struct nameidata		*nameidata;
 
-#ifdef CONFIG_SYSVIPC
+//#ifdef CONFIG_SYSVIPC
 //	struct sysv_sem			sysvsem;
 //	struct sysv_shm			sysvshm;
-#endif
+//#endif
+
 #ifdef CONFIG_DETECT_HUNG_TASK
 	/* hung task detection */
 	unsigned long			last_switch_count;
@@ -1461,23 +1467,43 @@ struct task_struct {
 
 	ANDROID_VENDOR_DATA_ARRAY(1, 3);
 
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
-	ANDROID_KABI_RESERVE(3);
-	ANDROID_KABI_RESERVE(4);
-	ANDROID_KABI_RESERVE(5);
-#if defined(CONFIG_SYSVIPC)
- 	// struct sysv_sem			sysvsem;
- 	ANDROID_KABI_USE(6, struct sysv_sem sysvsem);
- 	// struct sysv_shm			sysvshm;
- 	_ANDROID_KABI_REPLACE(ANDROID_KABI_RESERVE(7); ANDROID_KABI_RESERVE(8),
- 						  struct sysv_shm sysvshm);
- #else
-	ANDROID_KABI_RESERVE(6);
-	ANDROID_KABI_RESERVE(7);
-	ANDROID_KABI_RESERVE(8);
+/*#if defined(CONFIG_SYSVIPC)
+        ANDROID_KABI_USE(1, struct sysv_sem sysvsem);
+        union {
+            struct {
+                ANDROID_KABI_RESERVE(2);
+                ANDROID_KABI_RESERVE(3);
+            };
+            struct sysv_shm sysvshm;
+        };
+#else
+        ANDROID_KABI_RESERVE(1);
+        ANDROID_KABI_RESERVE(2);
+        ANDROID_KABI_RESERVE(3);
 #endif
 
+        ANDROID_KABI_RESERVE(4);
+        ANDROID_KABI_RESERVE(5);
+        ANDROID_KABI_RESERVE(6);
+        ANDROID_KABI_RESERVE(7);
+        ANDROID_KABI_RESERVE(8);
+*/
+        ANDROID_KABI_RESERVE(1);
+        ANDROID_KABI_RESERVE(2);
+        ANDROID_KABI_RESERVE(3);
+        ANDROID_KABI_RESERVE(4);
+        ANDROID_KABI_RESERVE(5);
+#if defined(CONFIG_SYSVIPC)
+        ANDROID_KABI_USE(6, struct sysv_sem sysvsem);
+        _ANDROID_KABI_REPLACE(
+            struct kabi_reserved_sysvshm __kabi_sysvshm_pad,
+            struct sysv_shm sysvshm
+        );
+#else
+        ANDROID_KABI_RESERVE(6);
+        ANDROID_KABI_RESERVE(7);
+        ANDROID_KABI_RESERVE(8);
+#endif
 	/*
 	 * New fields for task_struct should be added above here, so that
 	 * they are included in the randomized portion of task_struct.
