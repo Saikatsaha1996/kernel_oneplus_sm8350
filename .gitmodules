@@ -1,0 +1,3 @@
+[submodule "lindroid-drm"]
+	path = lindroid-drm
+	url = https://github.com/Linux-on-droid/lindroid-drm-loopback.git
